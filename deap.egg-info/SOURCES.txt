@@ -1,0 +1,7 @@
+README.md
+setup.py
+deap.egg-info/PKG-INFO
+deap.egg-info/SOURCES.txt
+deap.egg-info/dependency_links.txt
+deap.egg-info/requires.txt
+deap.egg-info/top_level.txt

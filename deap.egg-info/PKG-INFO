@@ -1,0 +1,30 @@
+Metadata-Version: 2.1
+Name: deap
+Version: 1.4.3
+Summary: Distributed Evolutionary Algorithms in Python
+Home-page: https://www.github.com/deap
+Author: deap Development Team
+Author-email: deap-users@googlegroups.com
+License: LGPL
+Keywords: evolutionary algorithms,genetic algorithms,genetic programming,cma-es,ga,gp,es,pso
+Platform: any
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development
+Description-Content-Type: text/markdown
+
+# Practica_ComputacionEvolutiva1
+
+Autoras: 
+
+    - Sara Abejon Perez
+
+    - Lydia Blanco Ruiz
+    
+    - Beatriz Llorente Garcia
