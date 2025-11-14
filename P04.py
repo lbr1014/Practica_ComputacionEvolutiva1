@@ -15,7 +15,7 @@ from deap import tools
 from deap import algorithms
 
 #==================== LECTURA DE ARCHIVO =====================
-def LeerArchivo(nombreFichero: str)-> int:
+def LeerArchivo(nombreFichero: str)-> Tuple[int, Dict[int, List[int]], List[int], int, dict[int, List[int]]]:
     
     with open(nombreFichero) as fichero:
         time.sleep(1)
@@ -37,7 +37,7 @@ def LeerArchivo(nombreFichero: str)-> int:
             puntuacion.append(int(colum))
                 
         numeroLibrosLibreria: List[int] = []
-        diasProcesado: List[int] = []
+        diasProcesado: Dict[int,List[int]] = {}
         librosProcesadoAlDia: List[int] = []
         idLibroEnLibreria: Dict[int,List[int]] = {}
       
@@ -47,7 +47,11 @@ def LeerArchivo(nombreFichero: str)-> int:
             informacionLibrosLibrerias = librerias.split()
             
             numeroLibrosLibreria.append(int(informacionLibrosLibrerias[0]))
-            diasProcesado.append(int(informacionLibrosLibrerias[1]))
+            
+            libros: List[int] = []
+            libros.append(int(informacionLibrosLibrerias[1]))
+                
+            diasProcesado[i] = libros
             librosProcesadoAlDia.append(int(informacionLibrosLibrerias[2]))
             
             # Segunda línea: ids de libros de esa librería
@@ -69,7 +73,7 @@ def LeerArchivo(nombreFichero: str)-> int:
         print (f'LIBROS PROCESADO AL DÍA: {librosProcesadoAlDia}')
         print (f'ID LIBRO LIBRERIA: {idLibroEnLibreria}')
 
-    return puntuacion
+    return puntuacion, diasProcesado, librosProcesadoAlDia, dias, idLibroEnLibreria
 
 def Fitness_score(permutacion: List[int], puntuaciones:List[int]) -> int:
     puntuacion: int = 0
@@ -92,7 +96,24 @@ def Fitness_score(permutacion: List[int], puntuaciones:List[int]) -> int:
     
     return puntuacion
 
+def procesado(librosLibrerias: Dict[int, List[int]], diasProcesado: Dict[int, List[int]], librosProcesadoAlDia: List[int], dias):
+    
+    diasProcesado=sorted(diasProcesado.items(), reverse=True)
+    print(f'DIAS PROCESADOS TRAS LA ORDENACIÓN: {diasProcesado}')
+    mejor_valor= diasProcesado[0][1]
+    mejor_valor_numero = int(mejor_valor[0])
+    dias -= mejor_valor_numero
+    print(f'DIAS: {dias}')
+    libreria= diasProcesado[0][0]
+    libros_procesados_dia: int = librosProcesadoAlDia[libreria]
+    print(f'LIBROS PROCESADOS AL DÍA: {libros_procesados_dia}')
+    libros_libreria = librosLibrerias[libreria]
+    print(f'LIBROS EN LA LIBRERÍA: {libros_libreria}')
+    
+    
 
+    
+        
 
 def ArchivosDirectorio(directorio: str = ".") -> str | None:
     """Muestra un menú con todos los .txt del directorio y devuelve el elegido."""
@@ -116,10 +137,11 @@ def ArchivosDirectorio(directorio: str = ".") -> str | None:
         print("Opción no válida, intenta de nuevo.")
 
 ########### MAIN ######################
-
 if __name__ == "__main__":
     nombreFichero = ArchivosDirectorio(".")
-    puntuaciones = LeerArchivo(nombreFichero)
+    puntuaciones, diasProcesado, librosProcesadoAlDia, dias, librosLibrerias = LeerArchivo(nombreFichero)
     
     vector: List[int]=[2,1,3,0,4,4]
     Fitness_score(vector, puntuaciones)
+    
+    procesado(librosLibrerias, diasProcesado, librosProcesadoAlDia, dias)
