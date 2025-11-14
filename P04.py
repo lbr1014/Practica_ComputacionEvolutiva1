@@ -15,7 +15,7 @@ from deap import tools
 from deap import algorithms
 
 #==================== LECTURA DE ARCHIVO =====================
-def LeerArchivo(nombreFichero: str)-> List[List[int]]:
+def LeerArchivo(nombreFichero: str)-> int:
     
     with open(nombreFichero) as fichero:
         time.sleep(1)
@@ -34,7 +34,7 @@ def LeerArchivo(nombreFichero: str)-> List[List[int]]:
         puntuacion:List[int]=[]
 
         for colum in linea2:
-            puntuacion.append(colum)
+            puntuacion.append(int(colum))
                 
         numeroLibrosLibreria: List[int] = []
         diasProcesado: List[int] = []
@@ -69,7 +69,29 @@ def LeerArchivo(nombreFichero: str)-> List[List[int]]:
         print (f'LIBROS PROCESADO AL DÍA: {librosProcesadoAlDia}')
         print (f'ID LIBRO LIBRERIA: {idLibroEnLibreria}')
 
-    return matriz
+    return puntuacion
+
+def Fitness_score(permutacion: List[int], puntuaciones:List[int]) -> int:
+    puntuacion: int = 0
+    
+    igual:bool = False
+    for i in permutacion:
+        libro = int(permutacion[i])
+        for j in permutacion:
+            if permutacion[j] == libro:
+                if igual:
+                    permutacion.pop(permutacion[j])
+                igual = True
+        igual = False
+    
+    for i in permutacion:
+        libro = int(permutacion[i])
+        puntuacion += int(puntuaciones[libro])
+        
+    print(f'PUNTUACIÓN: {puntuacion}')
+    
+    return puntuacion
+
 
 
 def ArchivosDirectorio(directorio: str = ".") -> str | None:
@@ -97,4 +119,7 @@ def ArchivosDirectorio(directorio: str = ".") -> str | None:
 
 if __name__ == "__main__":
     nombreFichero = ArchivosDirectorio(".")
-    matriz = LeerArchivo(nombreFichero)
+    puntuaciones = LeerArchivo(nombreFichero)
+    
+    vector: List[int]=[2,1,3,0,4,4]
+    Fitness_score(vector, puntuaciones)
