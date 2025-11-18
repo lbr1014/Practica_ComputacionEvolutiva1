@@ -98,6 +98,7 @@ def Fitness_score(permutacion: List[int], puntuaciones:List[int]) -> int:
 
 def procesado(librosLibrerias: Dict[int, List[int]], diasProcesado: Dict[int, List[int]], librosProcesadoAlDia: List[int], dias):
     
+    """"
     diasProcesado=sorted(diasProcesado.items(), reverse=True)
     print(f'DIAS PROCESADOS TRAS LA ORDENACIÓN: {diasProcesado}')
     mejor_valor= diasProcesado[0][1]
@@ -109,6 +110,15 @@ def procesado(librosLibrerias: Dict[int, List[int]], diasProcesado: Dict[int, Li
     print(f'LIBROS PROCESADOS AL DÍA: {libros_procesados_dia}')
     libros_libreria = librosLibrerias[libreria]
     print(f'LIBROS EN LA LIBRERÍA: {libros_libreria}')
+    """
+    pass
+
+def configuracion(puntuaciones: List[int]):
+    toolbox = base.Toolbox()
+    peso = sum(puntuaciones)
+    print(f'PESOS: {peso}')
+    creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+    creator.create("Individual", list, fitness=creator.FitnessMax)
     
     
 
@@ -145,3 +155,4 @@ if __name__ == "__main__":
     Fitness_score(vector, puntuaciones)
     
     procesado(librosLibrerias, diasProcesado, librosProcesadoAlDia, dias)
+    configuracion(puntuaciones)
