@@ -7,7 +7,7 @@ import os
 import time
 import random
 import numpy as np
-from typing import Dict, Tuple, List
+from typing import Dict, Set, Tuple, List
 import matplotlib.pyplot as plt
 
 from deap import base, creator
@@ -123,9 +123,9 @@ def evaluar_individuo(
     la puntuación total obtenida.
     """
 
-    dia_actual = 0
-    libros_escaneados = set()
-    puntuacion_total = 0
+    dia_actual: int = 0
+    libros_escaneados: Set = set()
+    puntuacion_total: int = 0
 
     # Recorremos las librerías en el orden dado por el individuo
     for id_lib in individuo:
@@ -164,22 +164,6 @@ def evaluar_individuo(
     # DEAP espera una tupla de fitness
     return (float(puntuacion_total),)
 
-def procesado(librosLibrerias: Dict[int, List[int]], diasProcesado: Dict[int, List[int]], librosProcesadoAlDia: List[int], dias):
-    
-    """"
-    diasProcesado=sorted(diasProcesado.items(), reverse=True)
-    print(f'DIAS PROCESADOS TRAS LA ORDENACIÓN: {diasProcesado}')
-    mejor_valor= diasProcesado[0][1]
-    mejor_valor_numero = int(mejor_valor[0])
-    dias -= mejor_valor_numero
-    print(f'DIAS: {dias}')
-    libreria= diasProcesado[0][0]
-    libros_procesados_dia: int = librosProcesadoAlDia[libreria]
-    print(f'LIBROS PROCESADOS AL DÍA: {libros_procesados_dia}')
-    libros_libreria = librosLibrerias[libreria]
-    print(f'LIBROS EN LA LIBRERÍA: {libros_libreria}')
-    """
-    pass
 
 #==================== CONFIGURACIÓN DEL AG (DEAP) =====================
 def configuracion(
@@ -206,9 +190,6 @@ def configuracion(
         creator.create("Individual", list, fitness=creator.FitnessMax)
     
     toolbox = base.Toolbox()
-    
-    #creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-    #creator.create("Individual", list, fitness=creator.FitnessMax)
     
     # Atributo básico: una permutación de IDs de librería
     toolbox.register("indices", random.sample, range(num_librerias), num_librerias)
@@ -303,8 +284,8 @@ def construir_salida_hashcode(
     - A: número de librerías efectivamente usadas
     - plan: dict[ id_libreria ] = lista de libros a escanear en esa librería (en orden)
     """
-    dia_actual = 0
-    libros_escaneados = set()
+    dia_actual: int = 0
+    libros_escaneados: Set = set()
     plan: Dict[int, List[int]] = {}
 
     for id_lib in individuo:
