@@ -6,6 +6,7 @@ Autoras: Sara Abejón Peréz, Lydia Blanco Ruiz y Beatriz Llorente García
 import os
 import time
 import random
+import json  
 import numpy as np
 from typing import Dict, Set, Tuple, List
 import matplotlib.pyplot as plt
@@ -83,31 +84,6 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, List[int]], Lis
 
     return puntuacion, diasProcesado, librosProcesadoAlDia, dias, idLibroEnLibreria
 
-#==================== FITNESS SOBRE LIBROS =====================
-def Fitness_score(permutacion: List[int], puntuaciones:List[int]) -> int:
-    """
-    Calcula la puntuación total de un conjunto de libros, sin duplicar.
-    """
-    puntuacion: int = 0
-    
-    igual:bool = False
-    for i in permutacion:
-        libro = int(permutacion[i])
-        for j in permutacion:
-            if permutacion[j] == libro:
-                if igual:
-                    permutacion.pop(permutacion[j])
-                igual = True
-        igual = False
-    
-    for i in permutacion:
-        libro = int(permutacion[i])
-        puntuacion += int(puntuaciones[libro])
-        
-    print(f'PUNTUACIÓN: {puntuacion}')
-    
-    return puntuacion
-
 #==================== EVALUACIÓN DEL INDIVIDUO =====================
 def evaluar_individuo(
     individuo: List[int],
@@ -124,7 +100,7 @@ def evaluar_individuo(
     """
 
     dia_actual: int = 0
-    libros_escaneados: Set = set()
+    libros_escaneados: Set[int] = set()
     puntuacion_total: int = 0
 
     # Recorremos las librerías en el orden dado por el individuo
@@ -135,7 +111,7 @@ def evaluar_individuo(
         if dia_actual + dias_signup >= dias:
             break  # no tiene sentido seguir con más librerías detrás
 
-        # Firmamos esta librería
+        # Simulamos el procesado de esta librería
         dia_actual += dias_signup
 
         dias_restantes = dias - dia_actual
@@ -192,9 +168,9 @@ def configuracion(
     toolbox = base.Toolbox()
     
     # Atributo básico: una permutación de IDs de librería
-    toolbox.register("indices", random.sample, range(num_librerias), num_librerias)
-    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("indices", random.sample, range(num_librerias), num_librerias) # Permutación aleatoria de librerias
+    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices) # Crea un individuo a partir de la permutación anterior
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual) # Lista de individuos
 
     # Registro de la función de evaluación
     toolbox.register(
@@ -208,11 +184,11 @@ def configuracion(
     )
     
     # Operadores genéticos
-    toolbox.register("mate", tools.cxPartialyMatched)          # cruce para permutaciones
-    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.2)
-    toolbox.register("select", tools.selTournament, tournsize=3)
+    toolbox.register("mate", tools.cxPartialyMatched) # Cruce para permutaciones (PMX)
+    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=prob_mutacion) # mutación que mezcla los índies dependiendo de la probabilidad de mutación
+    toolbox.register("select", tools.selTournament, tournsize=3) # Selección por torneo de tamaño 3
 
-    # ===== EJECUCIÓN DEL AG =====
+    # ===== EJECUCIÓN DEL ALGORÍTMO GENÉTICO =====
     random.seed(42)
 
     poblacion = toolbox.population(n=tam_poblacion)
@@ -244,7 +220,7 @@ def configuracion(
     
     print("\n==> Algoritmo genético terminado.")
     print(f"Mejor fitness encontrado: {mejor_fitness}")
-    print(f"Mejor orden de librerías: {list(mejor_individuo)}")
+    print(f"Mejor orden de librerías (mejor individuo): {list(mejor_individuo)}")
 
     # Representa la evolución del fitness
     try:
@@ -285,7 +261,7 @@ def construir_salida_hashcode(
     - plan: dict[ id_libreria ] = lista de libros a escanear en esa librería (en orden)
     """
     dia_actual: int = 0
-    libros_escaneados: Set = set()
+    libros_escaneados: Set[int] = set()
     plan: Dict[int, List[int]] = {}
 
     for id_lib in individuo:
@@ -323,11 +299,70 @@ def imprimir_salida_hashcode(A: int, plan: Dict[int, List[int]]):
     Imprime por pantalla el plan en el formato de salida HashCode.
     """
     print("\n===== SOLUCIÓN EN FORMATO HASHCODE =====")
-    print(A)
+    print(f'NÚMERO DE LIBRERÍAS QUE SE USAN EN LA SOLUCIÓN: {A}\n')
     for id_lib, libros in plan.items():
-        print(f"{id_lib} {len(libros)}")
+        print(f"ID LIBRERIA: {id_lib} \nNÚMERO DE LIBROS ESCANEADOS POR LA LIBRERÍA: {len(libros)}")
+        print(f'IDs DE LOS LIBROS ESCANEADOS POR LA LIBRERÍA: {id_lib}')
         print(" ".join(str(l) for l in libros))
+        print()
 
+#==================== GUARDAR RESULTADOS EN JSON ====================
+def guardar_resultados_json(
+    nombre_json: str,
+    nombre_entrada: str,
+    mejor_individuo: List[int],
+    mejor_fitness: float,
+    A: int,
+    plan: Dict[int, List[int]]
+) -> None:
+    """
+    Guarda en un .json:
+    - nombre del fichero de entrada
+    - mejor individuo (orden de librerías)
+    - mejor fitness
+    - número de librerías usadas
+    - plan HashCode (librería -> lista de libros)
+    """
+    datos = {
+        "archivo": nombre_entrada,
+        "mejor_individuo": list(mejor_individuo),
+        "mejor_fitness": float(mejor_fitness),
+        "número_librerias_usadas": A,
+        "id_libros_leidos_por_cada_libreria": {str(lib): libros for lib, libros in plan.items()}
+    }
+
+    with open(nombre_json, "w", encoding="utf-8") as f:
+        f.write(generar_json(datos, indent=0))
+
+    print(f"\nResultados guardados en: {nombre_json}")
+    
+def generar_json(obj, indent=0) -> str:
+    """
+    Genera un JSON donde:
+    - los diccionarios se indentan en varias líneas
+    - las listas se quedan en una sola línea: [a, b, c]
+    """
+    espacio = " " * indent
+
+    if isinstance(obj, dict):
+        if not obj:
+            return "{}"
+        lineas = []
+        for k, v in obj.items():
+            valor_str = generar_json(v, indent + 4)
+            linea = f'{" " * (indent + 4)}{json.dumps(k, ensure_ascii=False)}: {valor_str}'
+            lineas.append(linea)
+        return "{\n" + ",\n".join(lineas) + "\n" + espacio + "}"
+    
+    elif isinstance(obj, list):
+        # Las listas siempre en una sola línea
+        elementos = ", ".join(generar_json(e, 0) for e in obj)
+        return "[" + elementos + "]"
+
+    else:
+        # Tipos básicos
+        return json.dumps(obj, ensure_ascii=False)
+    
 #==================== SELECCIÓN DE FICHERO ====================
 def ArchivosDirectorio(directorio: str = ".") -> str | None:
     """Muestra un menú con todos los .txt del directorio y devuelve el elegido."""
@@ -380,3 +415,7 @@ if __name__ == "__main__":
     )
     
     imprimir_salida_hashcode(A, plan)
+    
+     # Guardar todo en JSON
+    nombre_json = os.path.splitext(nombreFichero)[0] + "_resultado.json"
+    guardar_resultados_json(nombre_json, nombreFichero, mejor_ind, mejor_fit, A, plan)
