@@ -150,7 +150,7 @@ def configuracion(
     tam_poblacion: int = 50,
     n_generaciones: int = 100,
     prob_cruce: float = 0.7,
-    prob_mutacion: float = 0.3
+    prob_mutacion: float = 0.8
 ):
     """
     Configura y ejecuta el algoritmo genético con DEAP.

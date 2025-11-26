@@ -1,0 +1,10 @@
+{
+    "archivo": "a_example.txt",
+    "mejor_individuo": [0, 1],
+    "mejor_fitness": 21.0,
+    "número_librerias_usadas": 2,
+    "id_libros_leidos_por_cada_libreria": {
+        "0": [3, 4, 2, 1, 0],
+        "1": [5]
+    }
+}
