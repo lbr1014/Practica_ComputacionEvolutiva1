@@ -16,13 +16,13 @@ from deap import tools
 from deap import algorithms
 
 #==================== LECTURA DE ARCHIVO =====================
-def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, List[int]], List[int], int, Dict[int, List[int]]]:
+def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int], int, Dict[int, List[int]]]:
     """
     Lee un fichero de entrada del problema Book Scanning (HashCode 2020).
 
     Devuelve:
     - puntuacion: lista con la puntuación de cada libro (indice = id libro)
-    - diasProcesado: dict[ id_libreria ] = [dias_signup]
+    - diasProcesado: dict[ id_libreria ] =  dias_signup (int)
     - librosProcesadoAlDia: lista donde indice = id_libreria, valor = libros/dia
     - dias: numero total de días disponibles
     - idLibroEnLibreria: dict[ id_libreria ] = lista de ids de libros en esa libreria
@@ -46,7 +46,7 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, List[int]], Lis
         
         # Estructuras de datos por librería        
         numeroLibrosLibreria: List[int] = []
-        diasProcesado: Dict[int,List[int]] = {}
+        diasProcesado: Dict[int,int] = {}
         librosProcesadoAlDia: List[int] = []
         idLibroEnLibreria: Dict[int,List[int]] = {}
       
@@ -57,10 +57,9 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, List[int]], Lis
             
             numeroLibrosLibreria.append(int(informacionLibrosLibrerias[0]))
             
-            libros: List[int] = []
-            libros.append(int(informacionLibrosLibrerias[1]))
+            dias_procesado = int(informacionLibrosLibrerias[1])
                 
-            diasProcesado[i] = libros
+            diasProcesado[i] = dias_procesado
             librosProcesadoAlDia.append(int(informacionLibrosLibrerias[2]))
             
             # Segunda línea: ids de libros de esa librería
@@ -88,7 +87,7 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, List[int]], Lis
 def evaluar_individuo(
     individuo: List[int],
     puntuaciones: List[int],
-    diasProcesado: Dict[int, List[int]],
+    diasProcesado: Dict[int, int],
     librosProcesadoAlDia: List[int],
     dias: int,
     librosLibrerias: Dict[int, List[int]]
@@ -105,7 +104,7 @@ def evaluar_individuo(
 
     # Recorremos las librerías en el orden dado por el individuo
     for id_lib in individuo:
-        dias_signup = diasProcesado[id_lib][0]
+        dias_signup = diasProcesado[id_lib]
 
         # Si al terminar el signup ya no quedan días para escanear, dejamos de procesar
         if dia_actual + dias_signup >= dias:
@@ -144,14 +143,14 @@ def evaluar_individuo(
 #==================== CONFIGURACIÓN DEL AG (DEAP) =====================
 def configuracion(
     puntuaciones: List[int],
-    diasProcesado: Dict[int, List[int]],
+    diasProcesado: Dict[int, int],
     librosProcesadoAlDia: List[int],
     dias: int,
     librosLibrerias: Dict[int, List[int]],
     tam_poblacion: int = 50,
     n_generaciones: int = 100,
     prob_cruce: float = 0.7,
-    prob_mutacion: float = 0.2
+    prob_mutacion: float = 0.3
 ):
     """
     Configura y ejecuta el algoritmo genético con DEAP.
@@ -246,7 +245,7 @@ def configuracion(
 def construir_salida_hashcode(
     individuo: List[int],
     puntuaciones: List[int],
-    diasProcesado: Dict[int, List[int]],
+    diasProcesado: Dict[int, int],
     librosProcesadoAlDia: List[int],
     dias: int,
     librosLibrerias: Dict[int, List[int]]
@@ -265,7 +264,7 @@ def construir_salida_hashcode(
     plan: Dict[int, List[int]] = {}
 
     for id_lib in individuo:
-        dias_signup = diasProcesado[id_lib][0]
+        dias_signup = diasProcesado[id_lib]
         if dia_actual + dias_signup >= dias:
             break
 
@@ -302,7 +301,7 @@ def imprimir_salida_hashcode(A: int, plan: Dict[int, List[int]]):
     print(f'NÚMERO DE LIBRERÍAS QUE SE USAN EN LA SOLUCIÓN: {A}\n')
     for id_lib, libros in plan.items():
         print(f"ID LIBRERIA: {id_lib} \nNÚMERO DE LIBROS ESCANEADOS POR LA LIBRERÍA: {len(libros)}")
-        print(f'IDs DE LOS LIBROS ESCANEADOS POR LA LIBRERÍA: {id_lib}')
+        print(f'IDs DE LOS LIBROS ESCANEADOS POR LA LIBRERÍA {id_lib}:')
         print(" ".join(str(l) for l in libros))
         print()
 
