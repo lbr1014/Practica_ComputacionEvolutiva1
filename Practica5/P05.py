@@ -16,7 +16,7 @@ from deap import tools
 from deap import algorithms
 
 #==================== LECTURA DE ARCHIVO =====================
-def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int], int, Dict[int, List[int]]]:
+def LeerArchivo(nombreFichero: str)-> Tuple[List[int], List[List[str]], Dict[int, int], List[int], int, Dict[int, List[int]]]:
     """
     Lee un fichero de entrada del problema Book Scanning (HashCode 2020).
 
@@ -38,11 +38,18 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int]
         dias = int(numeros[2])
                 
         # Puntuaciones de libros
-        puntuaciones= fichero.readline()
+        puntuaciones= fichero.readline().strip()
         linea2 = puntuaciones.split()
         puntuacion:List[int]=[]
         for colum in linea2:
             puntuacion.append(int(colum))
+            
+        
+        generos = fichero.readline().strip()
+        linea3 = generos.split(",")
+        contenido: List[List[str]] = []
+        for colum in linea3:
+            contenido.append(colum)  
         
         # Estructuras de datos por librería        
         numeroLibrosLibreria: List[int] = []
@@ -52,7 +59,7 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int]
       
         for i in range(numeroLibrerias):
             # Primera línea: info de la librería
-            librerias= fichero.readline()
+            librerias= fichero.readline().strip()
             informacionLibrosLibrerias = librerias.split()
             
             numeroLibrosLibreria.append(int(informacionLibrosLibrerias[0]))
@@ -63,7 +70,7 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int]
             librosProcesadoAlDia.append(int(informacionLibrosLibrerias[2]))
             
             # Segunda línea: ids de libros de esa librería
-            librerias= fichero.readline()
+            librerias= fichero.readline().strip()
             librerias = librerias.split()
             
             librosEnLibreria: List[int] = []
@@ -76,12 +83,13 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], Dict[int, int], List[int]
         print (f'NUMERO LIBRERIAS: {numeroLibrerias}')
         print (f'DÍAS: {dias}')
         print (f'PUNTUACIÓN: {puntuacion}')
+        print (f'CONTENIDO: {contenido}')
         print (f'NUMERO LIBROS EN LIBRERIAS: {numeroLibrosLibreria}')
         print (f'NUMERO DÍAS PROCESADO: {diasProcesado}')
         print (f'LIBROS PROCESADO AL DÍA: {librosProcesadoAlDia}')
         print (f'ID LIBRO LIBRERIA: {idLibroEnLibreria}')
 
-    return puntuacion, diasProcesado, librosProcesadoAlDia, dias, idLibroEnLibreria
+    return puntuacion, contenido, diasProcesado, librosProcesadoAlDia, dias, idLibroEnLibreria
 
 #==================== EVALUACIÓN DEL INDIVIDUO =====================
 def evaluar_individuo(
@@ -390,7 +398,7 @@ if __name__ == "__main__":
     if nombreFichero is None:
         exit(1)
         
-    puntuaciones, diasProcesado, librosProcesadoAlDia, dias, librosLibrerias = LeerArchivo(nombreFichero)
+    puntuaciones, contenido, diasProcesado, librosProcesadoAlDia, dias, librosLibrerias = LeerArchivo(nombreFichero)
     
     # Ejecutar algoritmo genético
     mejor_ind, mejor_fit = configuracion(
