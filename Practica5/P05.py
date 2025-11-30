@@ -10,6 +10,7 @@ import json
 import numpy as np
 from typing import Dict, Set, Tuple, List
 import matplotlib.pyplot as plt
+from collections import Counter
 
 from deap import base, creator
 from deap import tools
@@ -46,10 +47,11 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], List[List[str]], Dict[int
             
         
         generos = fichero.readline().strip()
-        linea3 = generos.split(",")
+        linea3 = [g.strip() for g in generos.split(",") if g.strip()]
         contenido: List[List[str]] = []
         for colum in linea3:
-            contenido.append(colum)  
+            temas_libro = colum.split() 
+            contenido.append(temas_libro) 
         
         # Estructuras de datos por librería        
         numeroLibrosLibreria: List[int] = []
@@ -91,80 +93,29 @@ def LeerArchivo(nombreFichero: str)-> Tuple[List[int], List[List[str]], Dict[int
 
     return puntuacion, contenido, diasProcesado, librosProcesadoAlDia, dias, idLibroEnLibreria
 
-def calcular_desbalance_relativo(libros_escaneados: Set[int], contenido: List[str]) -> float:
-    """
-    Calcula un índice de desbalance de temas en [0, 1].
-
-    - 0  -> distribución perfectamente uniforme de temas
-    - 1  -> todos los libros pertenecen a un único tema
-
-    Se tiene en cuenta el conjunto TOTAL de temas presentes en el fichero,
-    no solo los que aparecen en los libros escaneados.
-    """
-    # Todos los temas que existen en el problema
-    temas = set(contenido)
-    if not temas:
-        return 0.0
-
-    # Inicializamos el conteo de cada tema a 0
-    conteo_temas: Dict[str, int] = {t: 0 for t in temas}
-
-    # Contamos cuántos libros de cada tema se han escaneado
-    for libro in libros_escaneados:
-        tema = contenido[libro]
-        conteo_temas[tema] += 1
-
-    valores = list(conteo_temas.values())
-    total_libros = sum(valores)
-
-    # Si no hemos escaneado ningún libro, lo consideramos desbalance máximo
-    if total_libros == 0:
-        return 1.0
-
-    max_c = max(valores)
-    min_c = min(valores)
-
-    # Desbalance relativo en [0, 1]
-    desbalance_rel = (max_c - min_c) / total_libros
-    return desbalance_rel
-
-
 #==================== EVALUACIÓN DEL INDIVIDUO =====================
-def evaluar_individuo(
+def simular_individuo(
     individuo: List[int],
     puntuaciones: List[int],
     diasProcesado: Dict[int, int],
     librosProcesadoAlDia: List[int],
     dias: int,
-    librosLibrerias: Dict[int, List[int]],
-    contenido: List[str],
-    max_desbalance_rel: float
-) -> Tuple[float]:
+    librosLibrerias: Dict[int, List[int]]
+) -> Tuple[int, Set[int]]:
     """
-    Un individuo es una permutación de IDs de librería.
-    Se simula el proceso de signup y escaneo de libros y se devuelve
-    la puntuación total obtenida, SIEMPRE QUE cumpla la restricción
-    de balance de temas.
-
-    Restricción de balance:
-        desbalance_relativo(libros_escaneados) <= max_desbalance_rel
-
-    Si NO cumple la restricción -> fitness = 0.
+    Simula el comportamiento de un individuo (orden de librerías).
+    Devuelve la puntuación total y el conjunto de libros escaneados.
     """
-
     dia_actual: int = 0
     libros_escaneados: Set[int] = set()
     puntuacion_total: int = 0
 
-    # Recorremos las librerías en el orden dado por el individuo
     for id_lib in individuo:
         dias_signup = diasProcesado[id_lib]
 
-        # Si al terminar el signup ya no quedan días para escanear, dejamos de procesar
         if dia_actual + dias_signup >= dias:
-            break  # no tiene sentido seguir con más librerías detrás
+            break
 
-        # Simulamos el procesado de esta librería
         dia_actual += dias_signup
 
         dias_restantes = dias - dia_actual
@@ -173,39 +124,125 @@ def evaluar_individuo(
         if capacidad <= 0:
             continue
 
-        # Libros que tiene la librería y que aún no se han escaneado
         libros_candidatos = [
             b for b in librosLibrerias[id_lib]
             if b not in libros_escaneados
         ]
 
-        # Ordenamos por puntuación descendente
         libros_candidatos.sort(key=lambda b: puntuaciones[b], reverse=True)
-
-        # Nos quedamos con tantos como permita la capacidad
         libros_seleccionados = libros_candidatos[:capacidad]
 
-        # Actualizamos conjunto de libros escaneados y puntuación
         for libro in libros_seleccionados:
             libros_escaneados.add(libro)
             puntuacion_total += puntuaciones[libro]
 
-    # =========================
-    # COMPROBACIÓN RESTRICCIÓN
-    # =========================
-    desbalance_rel = calcular_desbalance_relativo(libros_escaneados, contenido)
+    return puntuacion_total, libros_escaneados
 
-    # Si NO cumple la restricción, penalizamos con fitness 0
-    if desbalance_rel > max_desbalance_rel:
-        return (0.0,)
 
-    # Si la cumple, fitness = puntuación de libros escaneados
+def calcular_balance(libros_escaneados: Set[int], contenido: List[List[str]]) -> float:
+    """
+    Calcula una métrica de balance de temas.
+    balance = min_count / max_count 
+    contenido[i] es el tema del libro i.
+    """
+    if not libros_escaneados:
+        return 0.0
+
+    temas: List[str] = []
+
+    for i in libros_escaneados:
+        if 0 <= i < len(contenido):
+            temas.extend(contenido[i])    
+    
+    if not temas:
+        return 0.0
+    
+    contador = Counter(temas)
+
+    if not contador:
+        return 0.0
+
+    max_count = max(contador.values())
+    min_count = min(contador.values())
+
+    if max_count == 0:
+        return 0.0
+
+    return min_count / max_count
+
+
+def evaluar_individuo(
+    individuo: List[int],
+    puntuaciones: List[int],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]]
+) -> Tuple[float]:
+    """
+    Maximiza la puntuación total.
+    """
+    puntuacion_total, _ = simular_individuo(
+        individuo, puntuaciones, diasProcesado,
+        librosProcesadoAlDia, dias, librosLibrerias
+    )
     return (float(puntuacion_total),)
+
+def evaluar_individuo_con_restriccion(
+    individuo: List[int],
+    puntuaciones: List[int],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]],
+    contenido: List[List[str]],
+    umbral_balance: float = 0.6,
+    fitness_penalizado: float = 0.0
+) -> Tuple[float]:
+    """
+    Evaluación con restricción de balance:
+    - Si el balance es mayor o igual al umbral_balance entonces
+    el fitness ess igual puntuación_total
+    - Si no el fitness será igual al fitness_penalizado
+    """
+    puntuacion_total, libros_escaneados = simular_individuo(
+        individuo, puntuaciones, diasProcesado,
+        librosProcesadoAlDia, dias, librosLibrerias
+    )
+
+    balance = calcular_balance(libros_escaneados, contenido)
+
+    if balance < umbral_balance:
+        return (float(fitness_penalizado),)
+    else:
+        return (float(puntuacion_total),)
+
+def evaluar_individuo_multi(
+    individuo: List[int],
+    puntuaciones: List[int],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]],
+    contenido: List[List[str]]
+) -> Tuple[float, float]:
+    """
+    Evaluación multiobjetivo:
+    - Objetivo 1: maximizar puntuación_total
+    - Objetivo 2: maximizar balance de temas
+    """
+    puntuacion_total, libros_escaneados = simular_individuo(
+        individuo, puntuaciones, diasProcesado,
+        librosProcesadoAlDia, dias, librosLibrerias
+    )
+
+    balance = calcular_balance(libros_escaneados, contenido)
+
+    return (float(puntuacion_total), float(balance))
 
 #==================== CONFIGURACIÓN DEL AG (DEAP) =====================
 def configuracion(
     puntuaciones: List[int],
-    contenido: List[str],
     diasProcesado: Dict[int, int],
     librosProcesadoAlDia: List[int],
     dias: int,
@@ -213,18 +250,11 @@ def configuracion(
     tam_poblacion: int = 50,
     n_generaciones: int = 100,
     prob_cruce: float = 0.7,
-    prob_mutacion: float = 0.8,
-    max_desbalance_rel: float = 0.3  # <-- UMBRAL DE LA RESTRICCIÓN
+    prob_mutacion: float = 0.8
 ):
     """
     Configura y ejecuta el algoritmo genético con DEAP.
     Devuelve el mejor individuo encontrado y su fitness.
-
-    max_desbalance_rel:
-        umbral de desbalance relativo permitido en [0, 1].
-        - 0  -> distribución perfectamente uniforme entre temas
-        - 1  -> ningún límite (todos los libros podrían ser del mismo tema)
-
     """
     num_librerias = len(librosLibrerias)
     
@@ -241,7 +271,7 @@ def configuracion(
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices) # Crea un individuo a partir de la permutación anterior
     toolbox.register("population", tools.initRepeat, list, toolbox.individual) # Lista de individuos
 
-    # Registro de la función de evaluación (con restricción)
+    # Registro de la función de evaluación
     toolbox.register(
         "evaluate",
         evaluar_individuo,
@@ -249,17 +279,15 @@ def configuracion(
         diasProcesado=diasProcesado,
         librosProcesadoAlDia=librosProcesadoAlDia,
         dias=dias,
-        librosLibrerias=librosLibrerias,
-        contenido=contenido,
-        max_desbalance_rel=max_desbalance_rel
+        librosLibrerias=librosLibrerias
     )
     
     # Operadores genéticos
     toolbox.register("mate", tools.cxPartialyMatched) # Cruce para permutaciones (PMX)
-    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=prob_mutacion) # mutación que mezcla los índices dependiendo de la probabilidad de mutación
+    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=prob_mutacion) # mutación que mezcla los índies dependiendo de la probabilidad de mutación
     toolbox.register("select", tools.selTournament, tournsize=3) # Selección por torneo de tamaño 3
 
-    # ===== EJECUCIÓN DEL ALGORITMO GENÉTICO =====
+    # ===== EJECUCIÓN DEL ALGORÍTMO GENÉTICO =====
     random.seed(42)
 
     poblacion = toolbox.population(n=tam_poblacion)
@@ -290,7 +318,7 @@ def configuracion(
     mejor_fitness = mejor_individuo.fitness.values[0]
     
     print("\n==> Algoritmo genético terminado.")
-    print(f"Mejor fitness encontrado (con restricción de temas): {mejor_fitness}")
+    print(f"Mejor fitness encontrado: {mejor_fitness}")
     print(f"Mejor orden de librerías (mejor individuo): {list(mejor_individuo)}")
 
     # Representa la evolución del fitness
@@ -305,13 +333,205 @@ def configuracion(
         plt.xlabel("Generación")
         plt.ylabel("Fitness")
         plt.legend()
-        plt.title("Evolución del fitness (con restricción de temas)")
+        plt.title("Evolución del fitness")
         plt.grid(True)
         plt.show()
     except Exception as e:
         print("No se ha podido representar la evolución del fitness:", e)
 
     return mejor_individuo, mejor_fitness
+
+def configuracion_restriccion(
+    puntuaciones: List[int],
+    contenido: List[List[str]],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]],
+    tam_poblacion: int = 50,
+    n_generaciones: int = 100,
+    prob_cruce: float = 0.7,
+    prob_mutacion: float = 0.8,
+    umbral_balance: float = 0.6,
+    fitness_penalizado: float = 0.0
+):
+    """
+    Configuración del AG con restricción de balance de temas.
+    """
+    num_librerias = len(librosLibrerias)
+
+    if not hasattr(creator, "FitnessMax"):
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+    if not hasattr(creator, "Individual"):
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
+    toolbox = base.Toolbox()
+
+    toolbox.register("indices", random.sample, range(num_librerias), num_librerias)
+    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.indices)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+    toolbox.register(
+        "evaluate",
+        evaluar_individuo_con_restriccion,
+        puntuaciones=puntuaciones,
+        diasProcesado=diasProcesado,
+        librosProcesadoAlDia=librosProcesadoAlDia,
+        dias=dias,
+        librosLibrerias=librosLibrerias,
+        contenido=contenido,
+        umbral_balance=umbral_balance,
+        fitness_penalizado=fitness_penalizado
+    )
+
+    toolbox.register("mate", tools.cxPartialyMatched)
+    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=prob_mutacion)
+    toolbox.register("select", tools.selTournament, tournsize=3)
+
+    random.seed(42)
+    poblacion = toolbox.population(n=tam_poblacion)
+    halloffame = tools.HallOfFame(1)
+
+    stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+    stats.register("avg", np.mean)
+    stats.register("std", np.std)
+    stats.register("min", np.min)
+    stats.register("max", np.max)
+
+    print("\n==> Comenzando AG con restricción de balance...\n")
+    poblacion, logbook = algorithms.eaSimple(
+        poblacion,
+        toolbox,
+        cxpb=prob_cruce,
+        mutpb=prob_mutacion,
+        ngen=n_generaciones,
+        stats=stats,
+        halloffame=halloffame,
+        verbose=True
+    )
+
+    mejor_individuo = halloffame[0]
+    mejor_fitness = mejor_individuo.fitness.values[0]
+
+    print("\n==> AG con restricción terminado.")
+    print(f"Mejor fitness (con restricción): {mejor_fitness}")
+    print(f"Mejor orden de librerías: {list(mejor_individuo)}")
+
+    # Gráfica de evolución
+    try:
+        gen = logbook.select("gen")
+        maxs = logbook.select("max")
+        avgs = logbook.select("avg")
+
+        plt.figure()
+        plt.plot(gen, maxs, label="max")
+        plt.plot(gen, avgs, label="avg")
+        plt.xlabel("Generación")
+        plt.ylabel("Fitness")
+        plt.legend()
+        plt.title("Evolución del fitness (restricción)")
+        plt.grid(True)
+        plt.show()
+    except Exception as e:
+        print("No se ha podido representar la evolución del fitness (restricción):", e)
+
+    return mejor_individuo, mejor_fitness
+
+def configuracion_multiobjetivo(
+    puntuaciones: List[int],
+    contenido: List[List[str]],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]],
+    tam_poblacion: int = 50,
+    n_generaciones: int = 100,
+    prob_cruce: float = 0.7,
+    prob_mutacion: float = 0.8
+):
+    """
+    Configuración del AG multiobjetivo (puntuación, balance) con NSGA-II.
+    Devuelve el frente de Pareto (ParetoFront).
+    """
+    num_librerias = len(librosLibrerias)
+
+    if not hasattr(creator, "FitnessMulti"):
+        creator.create("FitnessMulti", base.Fitness, weights=(1.0, 1.0))
+    if not hasattr(creator, "IndividualMulti"):
+        creator.create("IndividualMulti", list, fitness=creator.FitnessMulti)
+
+    toolbox = base.Toolbox()
+
+    toolbox.register("indices", random.sample, range(num_librerias), num_librerias)
+    toolbox.register("individual", tools.initIterate, creator.IndividualMulti, toolbox.indices)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+
+    toolbox.register(
+        "evaluate",
+        evaluar_individuo_multi,
+        puntuaciones=puntuaciones,
+        diasProcesado=diasProcesado,
+        librosProcesadoAlDia=librosProcesadoAlDia,
+        dias=dias,
+        librosLibrerias=librosLibrerias,
+        contenido=contenido
+    )
+
+    toolbox.register("mate", tools.cxPartialyMatched)
+    toolbox.register("mutate", tools.mutShuffleIndexes, indpb=prob_mutacion)
+    toolbox.register("select", tools.selNSGA2)
+
+    random.seed(42)
+    poblacion = toolbox.population(n=tam_poblacion)
+
+    # Evaluar población inicial
+    for ind in poblacion:
+        ind.fitness.values = toolbox.evaluate(ind)
+
+    # Aplicar NSGA-II para clasificar la población inicial
+    poblacion = toolbox.select(poblacion, len(poblacion))
+
+    pareto_front = tools.ParetoFront()
+
+    stats = tools.Statistics(lambda ind: ind.fitness.values)
+    stats.register("avg", lambda fits: np.mean(fits, axis=0))
+    stats.register("min", lambda fits: np.min(fits, axis=0))
+    stats.register("max", lambda fits: np.max(fits, axis=0))
+
+    print("\n==> Comenzando AG multiobjetivo (NSGA-II)...\n")
+
+    for gen in range(1, n_generaciones + 1):
+        offspring = algorithms.varAnd(poblacion, toolbox, cxpb=prob_cruce, mutpb=prob_mutacion)
+
+        for ind in offspring:
+            ind.fitness.values = toolbox.evaluate(ind)
+
+        poblacion = toolbox.select(poblacion + offspring, tam_poblacion)
+        pareto_front.update(poblacion)
+
+        fits = [ind.fitness.values for ind in poblacion]
+        record = stats.compile(poblacion)
+        print(f"Gen {gen}: avg={record['avg']}, max={record['max']}")
+
+    print("\n==> AG multiobjetivo terminado.")
+    print(f"Tamaño del frente de Pareto: {len(pareto_front)}")
+
+    # Gráfica del frente de Pareto (puntuación vs balance)
+    try:
+        xs = [ind.fitness.values[0] for ind in pareto_front]
+        ys = [ind.fitness.values[1] for ind in pareto_front]
+
+        plt.figure()
+        plt.scatter(xs, ys)
+        plt.xlabel("Puntuación total")
+        plt.ylabel("Balance de temas")
+        plt.title("Frente de Pareto (puntuación vs balance)")
+        plt.grid(True)
+        plt.show()
+    except Exception as e:
+        print("No se ha podido representar el frente de Pareto:", e)
+
+    return pareto_front
 
 
 #==================== CONSTRUIR UNA SOLUCIÓN HASHCODE =====================
@@ -449,7 +669,7 @@ def ArchivosDirectorio(directorio: str = ".") -> str | None:
         print("             SELECCIONA FICHERO           ")
         print("   -------------------------------------- ")
         for i, f in enumerate(ficheros, start=1):
-            print(f"               {i}) {f}")
+            print(f"{i}) {f}")
         print("   ______________________________________\n")
 
         elec = input(f"Elige un fichero [1-{len(ficheros)}]: ").strip()
@@ -462,23 +682,57 @@ if __name__ == "__main__":
     nombreFichero = ArchivosDirectorio(".")
     if nombreFichero is None:
         exit(1)
-        
+
     puntuaciones, contenido, diasProcesado, librosProcesadoAlDia, dias, librosLibrerias = LeerArchivo(nombreFichero)
-    
-    # Ejecutar algoritmo genético
-    mejor_ind, mejor_fit = configuracion(
-        puntuaciones,
-        contenido,
-        diasProcesado,
-        librosProcesadoAlDia,
-        dias,
-        librosLibrerias,
-        tam_poblacion=50,
-        n_generaciones=100,
-        max_desbalance_rel=0.3
-    )
-    
-    # Construir e imprimir una solución en formato HashCode a partir del mejor individuo
+
+    print("\n¿Qué variante quieres ejecutar?")
+    print("  1) AG simple (sin balance)")
+    print("  2) AG con restricción de balance")
+    print("  3) AG multiobjetivo (puntuación, balance)")
+    opcion = input("Elige opción [1-3]: ").strip()
+
+    if opcion == "2":
+        mejor_ind, mejor_fit = configuracion_restriccion(
+            puntuaciones,
+            contenido,
+            diasProcesado,
+            librosProcesadoAlDia,
+            dias,
+            librosLibrerias,
+            tam_poblacion=50,
+            n_generaciones=100,
+            umbral_balance=0.6,       
+            fitness_penalizado=0.0   
+        )
+    elif opcion == "3":
+        pareto_front = configuracion_multiobjetivo(
+            puntuaciones,
+            contenido,
+            diasProcesado,
+            librosProcesadoAlDia,
+            dias,
+            librosLibrerias,
+            tam_poblacion=50,
+            n_generaciones=100
+        )
+        # Para construir la salida HashCode, elegimos del frente la solución con mayor puntuación
+        mejor_ind = max(pareto_front, key=lambda ind: ind.fitness.values[0])
+        mejor_fit = mejor_ind.fitness.values[0]
+        print(f"\nMejor individuo elegido del frente de Pareto (por puntuación): {list(mejor_ind)}")
+        print(f"Puntuación: {mejor_fit}, Balance: {mejor_ind.fitness.values[1]}")
+    else:
+        # Versión simple (P04)
+        mejor_ind, mejor_fit = configuracion(
+            puntuaciones,
+            diasProcesado,
+            librosProcesadoAlDia,
+            dias,
+            librosLibrerias,
+            tam_poblacion=50,
+            n_generaciones=100
+        )
+
+    # Construir e imprimir una solución en formato HashCode a partir del individuo elegido
     A, plan = construir_salida_hashcode(
         mejor_ind,
         puntuaciones,
@@ -487,9 +741,9 @@ if __name__ == "__main__":
         dias,
         librosLibrerias
     )
-    
+
     imprimir_salida_hashcode(A, plan)
-    
-     # Guardar todo en JSON
+
+    # Guardar todo en JSON
     nombre_json = os.path.splitext(nombreFichero)[0] + "_resultado.json"
     guardar_resultados_json(nombre_json, nombreFichero, mejor_ind, mejor_fit, A, plan)
