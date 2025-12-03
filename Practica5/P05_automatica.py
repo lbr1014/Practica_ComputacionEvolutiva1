@@ -202,7 +202,7 @@ def evaluar_individuo_con_restriccion(
     """
     Evaluación con restricción de balance:
     - Si el balance es mayor o igual al umbral_balance entonces
-    el fitness ess igual puntuación_total
+    el fitness es igual puntuación_total
     - Si no al fitness será un tercio de la puntuación
     """
     puntuacion_total, libros_escaneados = simular_individuo(
@@ -250,7 +250,8 @@ def configuracion(
     tam_poblacion: int = 50,
     n_generaciones: int = 100,
     prob_cruce: float = 0.7,
-    prob_mutacion: float = 0.2
+    prob_mutacion: float = 0.2,
+    save_dir: str | None = None
 ):
     """
     Configura y ejecuta el algoritmo genético con DEAP.
@@ -335,7 +336,13 @@ def configuracion(
         plt.legend()
         plt.title("Evolución del fitness")
         plt.grid(True)
-        plt.show()
+
+        if save_dir is not None:
+            os.makedirs(save_dir, exist_ok=True)
+            plt.savefig(os.path.join(save_dir, "evolucion_fitness.png"))
+            plt.close()
+        else:
+            plt.show()
     except Exception as e:
         print("No se ha podido representar la evolución del fitness:", e)
 
@@ -353,7 +360,8 @@ def configuracion_restriccion(
     prob_cruce: float = 0.7,
     prob_mutacion: float = 0.2,
     umbral_balance: float = 0.6,
-    factor_penalizacion: float = 1.0/3.0
+    factor_penalizacion: float = 1.0/3.0,
+    save_dir: str | None = None
 ):
     """
     Configuración del AG con restricción de balance de temas.
@@ -431,7 +439,14 @@ def configuracion_restriccion(
         plt.legend()
         plt.title("Evolución del fitness (restricción)")
         plt.grid(True)
-        plt.show()
+        
+        if save_dir is not None:
+            os.makedirs(save_dir, exist_ok=True)
+            plt.savefig(os.path.join(save_dir, "evolucion_fitness_restriccion.png"))
+            plt.close()
+        else:
+            plt.show()
+        
     except Exception as e:
         print("No se ha podido representar la evolución del fitness (restricción):", e)
 
@@ -447,7 +462,8 @@ def configuracion_multiobjetivo(
     tam_poblacion: int = 50,
     n_generaciones: int = 100,
     prob_cruce: float = 0.7,
-    prob_mutacion: float = 0.2
+    prob_mutacion: float = 0.2,
+    save_dir: str | None = None
 ):
     """
     Configuración del AG multiobjetivo (puntuación, balance) con NSGA-II.
@@ -549,6 +565,8 @@ def configuracion_multiobjetivo(
 
         # ================== GRÁFICAS ==================
     try:
+        if save_dir is not None:
+            os.makedirs(save_dir, exist_ok=True)
         # 1) Evolución conjunta puntuación / balance en la MISMA figura
         fig, ax1 = plt.subplots()
 
@@ -575,7 +593,11 @@ def configuracion_multiobjetivo(
 
         plt.title("Evolución de puntuación y balance (multiobjetivo)")
         fig.tight_layout()
-        plt.show()
+        if save_dir is not None:
+            fig.savefig(os.path.join(save_dir, "evolucion_puntuacion_balance.png"))
+            plt.close(fig)
+        else:
+            plt.show()
 
         # 2) Población final marcada con Pareto
         # Individuos no Pareto (los que están en la población pero no en el frente)
@@ -587,7 +609,7 @@ def configuracion_multiobjetivo(
         xs_pareto = [ind.fitness.values[0] for ind in pareto_front]
         ys_pareto = [ind.fitness.values[1] for ind in pareto_front]
 
-        plt.figure()
+        fig2 = plt.figure()
         # No Pareto -> puntos rojos
         plt.scatter(xs_no_pareto, ys_no_pareto,
                     c="red", alpha=0.5, label="No óptimos de Pareto")
@@ -601,7 +623,12 @@ def configuracion_multiobjetivo(
         plt.grid(True)
         plt.legend()
         plt.tight_layout()
-        plt.show()
+        
+        if save_dir is not None:
+            fig2.savefig(os.path.join(save_dir, "pareto.png"))
+            plt.close(fig2)
+        else:
+            plt.show()
 
     except Exception as e:
         print("No se han podido generar las gráficas del multiobjetivo:", e)
@@ -679,7 +706,8 @@ def guardar_resultados_json(
     mejor_individuo: List[int],
     mejor_fitness: float,
     A: int,
-    plan: Dict[int, List[int]]
+    plan: Dict[int, List[int]],
+    ruta_directorio: str | None = None
 ) -> None:
     """
     Guarda en un .json:
@@ -688,19 +716,29 @@ def guardar_resultados_json(
     - mejor fitness
     - número de librerías usadas
     - plan HashCode (librería -> lista de libros)
+
+    Si ruta_directorio no es None, guarda el JSON dentro de ese directorio.
     """
     datos = {
         "archivo": nombre_entrada,
         "mejor_individuo": list(mejor_individuo),
         "mejor_fitness": float(mejor_fitness),
         "número_librerias_usadas": A,
-        "id_libros_leidos_por_cada_libreria": {str(lib): libros for lib, libros in plan.items()}
+        "id_libros_leidos_por_cada_libreria": {
+            str(lib): libros for lib, libros in plan.items()
+        }
     }
 
-    with open(nombre_json, "w", encoding="utf-8") as f:
+    if ruta_directorio is not None:
+        os.makedirs(ruta_directorio, exist_ok=True)
+        ruta_completa = os.path.join(ruta_directorio, nombre_json)
+    else:
+        ruta_completa = nombre_json
+
+    with open(ruta_completa, "w", encoding="utf-8") as f:
         f.write(generar_json(datos, indent=0))
 
-    print(f"\nResultados guardados en: {nombre_json}")
+    print(f"\nResultados guardados en: {ruta_completa}")
     
 def generar_json(obj, indent=0) -> str:
     """
@@ -750,6 +788,132 @@ def ArchivosDirectorio(directorio: str = ".") -> str | None:
         if elec.isdigit() and 1 <= int(elec) <= len(ficheros):
             return ficheros[int(elec) - 1]
         print("Opción no válida, intenta de nuevo.")
+        
+def ejecutar_experimentos_variante(
+    opcion: str,
+    nombreFichero: str,
+    puntuaciones: List[int],
+    contenido: List[List[str]],
+    diasProcesado: Dict[int, int],
+    librosProcesadoAlDia: List[int],
+    dias: int,
+    librosLibrerias: Dict[int, List[int]]
+):
+    """
+    Lanza todas las combinaciones de parámetros para la variante elegida.
+    """
+    # Valores a probar
+    mutaciones = [0.2, 0.05]
+    cruces = [0.7, 0.9]
+    tamanios = [50, 100]
+    generaciones = [100, 70]
+
+    # Nombre de la variante y directorio base
+    if opcion == "1":
+        nombre_variante = "basica"
+    elif opcion == "2":
+        nombre_variante = "restrictivo"
+    elif opcion == "3":
+        nombre_variante = "multiobjetivo"
+    else:
+        print("Opción de variante no válida.")
+        return
+
+    dir_base_variante = nombre_variante  # p.ej. "restrictivo"
+    os.makedirs(dir_base_variante, exist_ok=True)
+
+    for mutpb in mutaciones:
+        for cxpb in cruces:
+            for tam in tamanios:
+                for ngen in generaciones:
+                    # Nombre del subdirectorio con la configuración
+                    subdir = f"pop{tam}_gen{ngen}_cx{str(cxpb).replace('.', '_')}_mut{str(mutpb).replace('.', '_')}"
+                    ruta_ejecucion = os.path.join(dir_base_variante, subdir)
+                    os.makedirs(ruta_ejecucion, exist_ok=True)
+
+                    print("\n========================================")
+                    print(f"Ejecutando {nombre_variante} con:")
+                    print(f"  población = {tam}")
+                    print(f"  generaciones = {ngen}")
+                    print(f"  cxpb = {cxpb}")
+                    print(f"  mutpb = {mutpb}")
+                    print(f"Resultados en: {ruta_ejecucion}")
+                    print("========================================\n")
+
+                    # Ejecutar según variante
+                    if opcion == "1":
+                        mejor_ind, mejor_fit = configuracion(
+                            puntuaciones,
+                            diasProcesado,
+                            librosProcesadoAlDia,
+                            dias,
+                            librosLibrerias,
+                            tam_poblacion=tam,
+                            n_generaciones=ngen,
+                            prob_cruce=cxpb,
+                            prob_mutacion=mutpb,
+                            save_dir=ruta_ejecucion
+                        )
+
+                    elif opcion == "2":
+                        mejor_ind, mejor_fit = configuracion_restriccion(
+                            puntuaciones,
+                            contenido,
+                            diasProcesado,
+                            librosProcesadoAlDia,
+                            dias,
+                            librosLibrerias,
+                            tam_poblacion=tam,
+                            n_generaciones=ngen,
+                            prob_cruce=cxpb,
+                            prob_mutacion=mutpb,
+                            umbral_balance=0.6,
+                            factor_penalizacion=1.0/3.0,
+                            save_dir=ruta_ejecucion
+                        )
+
+                    else:  # opcion == "3" multiobjetivo
+                        pareto_front = configuracion_multiobjetivo(
+                            puntuaciones,
+                            contenido,
+                            diasProcesado,
+                            librosProcesadoAlDia,
+                            dias,
+                            librosLibrerias,
+                            tam_poblacion=tam,
+                            n_generaciones=ngen,
+                            prob_cruce=cxpb,
+                            prob_mutacion=mutpb,
+                            save_dir=ruta_ejecucion
+                        )
+                        # Elegimos del frente el de mayor puntuación para construir salida
+                        mejor_ind = max(pareto_front, key=lambda ind: ind.fitness.values[0])
+                        mejor_fit = mejor_ind.fitness.values[0]
+                        print(f"\nMejor individuo (por puntuación) de esta ejecución: {list(mejor_ind)}")
+                        print(f"Puntuación: {mejor_fit}, Balance: {mejor_ind.fitness.values[1]}")
+
+                    # Construir solución HashCode para esta ejecución
+                    A, plan = construir_salida_hashcode(
+                        mejor_ind,
+                        puntuaciones,
+                        diasProcesado,
+                        librosProcesadoAlDia,
+                        dias,
+                        librosLibrerias
+                    )
+
+                    # Guardar JSON dentro del subdirectorio de la ejecución
+                    nombre_json = os.path.splitext(nombreFichero)[0] + "_resultado.json"
+                    guardar_resultados_json(
+                        nombre_json,
+                        nombreFichero,
+                        mejor_ind,
+                        mejor_fit,
+                        A,
+                        plan,
+                        ruta_directorio=ruta_ejecucion
+                    )
+
 
 ########### MAIN ######################
 if __name__ == "__main__":
@@ -765,59 +929,17 @@ if __name__ == "__main__":
     print("  3) AG multiobjetivo (puntuación, balance)")
     opcion = input("Elige opción [1-3]: ").strip()
 
-    if opcion == "2":
-        mejor_ind, mejor_fit = configuracion_restriccion(
-            puntuaciones,
-            contenido,
-            diasProcesado,
-            librosProcesadoAlDia,
-            dias,
-            librosLibrerias,
-            tam_poblacion=50,
-            n_generaciones=100,
-            umbral_balance=0.6,       
-            factor_penalizacion=1.0/3.0  
-        )
-    elif opcion == "3":
-        pareto_front = configuracion_multiobjetivo(
-            puntuaciones,
-            contenido,
-            diasProcesado,
-            librosProcesadoAlDia,
-            dias,
-            librosLibrerias,
-            tam_poblacion=50,
-            n_generaciones=100
-        )
-        # Para construir la salida HashCode, elegimos del frente la solución con mayor puntuación
-        mejor_ind = max(pareto_front, key=lambda ind: ind.fitness.values[0])
-        mejor_fit = mejor_ind.fitness.values[0]
-        print(f"\nMejor individuo elegido del frente de Pareto (por puntuación): {list(mejor_ind)}")
-        print(f"Puntuación: {mejor_fit}, Balance: {mejor_ind.fitness.values[1]}")
-    else:
-        # Versión simple (P04)
-        mejor_ind, mejor_fit = configuracion(
-            puntuaciones,
-            diasProcesado,
-            librosProcesadoAlDia,
-            dias,
-            librosLibrerias,
-            tam_poblacion=50,
-            n_generaciones=100
-        )
-
-    # Construir e imprimir una solución en formato HashCode a partir del individuo elegido
-    A, plan = construir_salida_hashcode(
-        mejor_ind,
+     # Ahora siempre lanzamos TODAS las combinaciones de parámetros
+    ejecutar_experimentos_variante(
+        opcion,
+        nombreFichero,
         puntuaciones,
+        contenido,
         diasProcesado,
         librosProcesadoAlDia,
         dias,
         librosLibrerias
     )
+    
+    print("\nTodas las ejecuciones han finalizado.")
 
-    imprimir_salida_hashcode(A, plan)
-
-    # Guardar todo en JSON
-    nombre_json = os.path.splitext(nombreFichero)[0] + "_resultado.json"
-    guardar_resultados_json(nombre_json, nombreFichero, mejor_ind, mejor_fit, A, plan)
