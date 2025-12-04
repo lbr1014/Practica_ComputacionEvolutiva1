@@ -444,9 +444,9 @@ def configuracion_multiobjetivo(
     librosProcesadoAlDia: List[int],
     dias: int,
     librosLibrerias: Dict[int, List[int]],
-    tam_poblacion: int = 50,
+    tam_poblacion: int = 100,
     n_generaciones: int = 100,
-    prob_cruce: float = 0.7,
+    prob_cruce: float = 0.9,
     prob_mutacion: float = 0.2
 ):
     """

@@ -819,7 +819,7 @@ def ejecutar_experimentos_variante(
         print("Opción de variante no válida.")
         return
 
-    dir_base_variante = nombre_variante  # p.ej. "restrictivo"
+    dir_base_variante = nombre_variante 
     os.makedirs(dir_base_variante, exist_ok=True)
 
     for mutpb in mutaciones:
@@ -872,7 +872,7 @@ def ejecutar_experimentos_variante(
                             save_dir=ruta_ejecucion
                         )
 
-                    else:  # opcion == "3" multiobjetivo
+                    else:  # multiobjetivo
                         pareto_front = configuracion_multiobjetivo(
                             puntuaciones,
                             contenido,
