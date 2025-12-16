@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from functools import partial
 
 from deap import base, creator, gp, tools, algorithms
@@ -184,6 +185,147 @@ def eaSimple_stagnation(population, toolbox, cxpb, mutpb, stop: StagnationStop,
 
     return population, logbook
 
+# -----------------------------
+#  Gráficas (Matplotlib)
+# -----------------------------
+def plot_pareto_front(population, title="Frente de Pareto"):
+    """Scatter de población final: azul = frente de Pareto, rojo = no frente.
+    Objetivos (minimizar): error y profundidad (height).
+    """
+    if not population:
+        return
+
+    fronts = tools.sortNondominated(population, k=len(population), first_front_only=True)
+    pareto_front = fronts[0] if fronts and fronts[0] else []
+
+    # Usamos ids para poder hacer membership rápido sin set(individuos)
+    pareto_ids = {id(ind) for ind in pareto_front}
+
+    xs_front, ys_front, xs_rest, ys_rest = [], [], [], []
+    for ind in population:
+        err, depth = ind.fitness.values
+        if id(ind) in pareto_ids:
+            xs_front.append(err); ys_front.append(depth)
+        else:
+            xs_rest.append(err); ys_rest.append(depth)
+
+    plt.figure()
+    if xs_rest:
+        plt.scatter(xs_rest, ys_rest, label="No óptimos de Pareto", alpha=0.7, c="red")
+    if xs_front:
+        plt.scatter(xs_front, ys_front, label="Óptimos de Pareto", alpha=0.9, c="blue")
+    plt.title(title)
+    plt.xlabel("Error (1 - accuracy) [min]")
+    plt.ylabel("Profundidad (height) [min]")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+
+
+
+def plot_multiobj_evolution(logbook, title="Evolución de objetivos (multiobjetivo)"):
+    """Evolución de (error, profundidad).
+    Soporta dos formatos de logbook:
+      1) MultiStatistics (DEAP): rec['fitness']['avg'] -> array([avg_err, avg_depth])
+      2) Statistics simple: rec['avg'] / rec['min'] -> tupla/lista/np.array de 2 objetivos
+    """
+    if logbook is None or len(logbook) == 0:
+        return
+
+    gens = [rec.get("gen", i) for i, rec in enumerate(logbook)]
+
+    def _get_2(obj, idx):
+        # extrae componente idx de tupla/lista/np.array
+        try:
+            return float(obj[idx])
+        except Exception:
+            return float(obj)
+
+    avg_err = []
+    min_err = []
+    avg_depth = []
+    min_depth = []
+
+    for rec in logbook:
+        if "fitness" in rec:
+            avg = rec["fitness"].get("avg", None)
+            mn = rec["fitness"].get("min", None)
+            if avg is None or mn is None:
+                continue
+            avg_err.append(_get_2(avg, 0))
+            min_err.append(_get_2(mn, 0))
+            avg_depth.append(_get_2(avg, 1))
+            min_depth.append(_get_2(mn, 1))
+        else:
+            # formato alternativo: rec['avg'] y rec['min'] ya contienen 2 objetivos
+            if "avg" not in rec or "min" not in rec:
+                continue
+            avg = rec["avg"]; mn = rec["min"]
+            avg_err.append(_get_2(avg, 0))
+            min_err.append(_get_2(mn, 0))
+            avg_depth.append(_get_2(avg, 1))
+            min_depth.append(_get_2(mn, 1))
+
+    # Ajustar gens al número real de puntos que hemos podido extraer
+    gens = gens[:len(avg_err)]
+
+    if len(gens) == 0:
+        print("Aviso: el logbook no contiene estadísticas multi-objetivo ('fitness' ni ('avg','min')).")
+        return
+
+    fig, ax1 = plt.subplots()
+    ax1.set_title(title)
+    ax1.set_xlabel("Generación")
+    ax1.set_ylabel("Error (1 - accuracy) [min]")
+    ax1.plot(gens, avg_err, label="Media error")
+    ax1.plot(gens, min_err, label="Mínimo error", linestyle="--")
+    ax1.grid(True, alpha=0.3)
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Profundidad (height) [min]")
+    ax2.plot(gens, avg_depth, label="Media profundidad")
+    ax2.plot(gens, min_depth, label="Mínimo profundidad", linestyle="--")
+
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, loc="best")
+
+
+def plot_error_vs_depth(population, best=None, title="Error vs profundidad (población final)"):
+    """Scatter para mono-objetivo (y también útil en multi)."""
+    if not population:
+        return
+
+    xs = [ind.height for ind in population]
+    ys = [float(ind.fitness.values[0]) for ind in population]
+
+    plt.figure()
+    plt.scatter(xs, ys, alpha=0.7, label="Individuos")
+    if best is not None:
+        plt.scatter([best.height], [float(best.fitness.values[0])], marker="*", s=200, label="Mejor")
+    plt.title(title)
+    plt.xlabel("Profundidad (height)")
+    plt.ylabel("Error (1 - accuracy)")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+
+
+def plot_mono_fitness_evolution(logbook, title="Evolución del fitness (mono-objetivo)"):
+    if not logbook:
+        return
+    gens = [rec["gen"] for rec in logbook]
+    avg = [float(rec["avg"]) for rec in logbook]
+    min_ = [float(rec["min"]) for rec in logbook]
+
+    plt.figure()
+    plt.title(title)
+    plt.plot(gens, min_, label="min")
+    plt.plot(gens, avg, label="avg")
+    plt.xlabel("Generación")
+    plt.ylabel("Error (1 - accuracy)")
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+
+
 
 # -----------------------------
 #  GP setup
@@ -277,29 +419,16 @@ def run_gp(multiobj: bool):
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     stats_size = tools.Statistics(len)
     mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-    def _safe_stat(func, x):
-        # x puede ser lista de escalares o tuplas (p.ej. fitness multi-objetivo)
-        if len(x) == 0:
-            return float("nan")
-        arr = np.asarray(list(x), dtype=float)
-        return func(arr, axis=0)
-
-    mstats.register("avg", lambda x: _safe_stat(np.mean, x))
-    mstats.register("std", lambda x: _safe_stat(np.std, x))
-    mstats.register("min", lambda x: _safe_stat(np.min, x))
-    mstats.register("max", lambda x: _safe_stat(np.max, x))
+    mstats.register("avg", np.mean)
+    mstats.register("std", np.std)
+    mstats.register("min", np.min)
+    mstats.register("max", np.max)
 
     # Evolución
+    logbook = tools.Logbook()
+    logbook.header = ["gen", "nevals"] + (mstats.fields if mstats else [])
+
     if multiobj:
-        # Requisitos de selTournamentDCD: si k == len(pop), k debe ser múltiplo de 4
-        if POP % 2 == 1:
-            raise ValueError("POP debe ser par para este modo multi-objetivo (NSGA-II).")
-        if POP % 4 != 0:
-            raise ValueError("POP debe ser múltiplo de 4 para selTournamentDCD (p.ej. 200, 300, 400...).")
-
-        logbook = tools.Logbook()
-        logbook.header = ["gen", "nevals"] + mstats.fields
-
         # --- 1) Evaluar población inicial ---
         invalid = [ind for ind in pop if not ind.fitness.valid]
         fits = toolbox.map(toolbox.evaluate, invalid)
@@ -310,43 +439,61 @@ def run_gp(multiobj: bool):
         pop = toolbox.select(pop, len(pop))
         hof.update(pop)
 
-        record = mstats.compile(pop) if len(pop) else {}
+        # --- 3) Estadísticas gen 0 ---
+        record = mstats.compile(pop) if mstats else {}
         logbook.record(gen=0, nevals=len(invalid), **record)
         print(logbook.stream)
 
-        # --- 3) Bucle evolutivo ---
         for gen in range(1, NGEN_MULTI + 1):
-            # Selección de padres (DCD)
-            parents = tools.selTournamentDCD(pop, len(pop))
-            parents = list(map(toolbox.clone, parents))
+            # --- 4) Selección de padres (DCD) ---
+            k = POP if POP % 2 == 0 else POP - 1
+            parents = tools.selTournamentDCD(pop, k)
+            if POP % 2 == 1:
+                parents.append(random.choice(pop))
+            offspring = [toolbox.clone(ind) for ind in parents]
 
-            # Variación (cruce + mutación)
-            offspring = algorithms.varAnd(parents, toolbox, cxpb=CXPB, mutpb=MUTPB)
+            # --- 5) Cruce / mutación ---
+            for c1, c2 in zip(offspring[::2], offspring[1::2]):
+                if random.random() < CXPB:
+                    toolbox.mate(c1, c2)
+                    del c1.fitness.values, c2.fitness.values
 
-            # Evaluar descendencia
+            for mut in offspring:
+                if random.random() < MUTPB:
+                    toolbox.mutate(mut)
+                    del mut.fitness.values
+
+            # --- 6) Evaluar descendencia ---
             invalid = [ind for ind in offspring if not ind.fitness.valid]
             fits = toolbox.map(toolbox.evaluate, invalid)
             for ind, f in zip(invalid, fits):
                 ind.fitness.values = f
 
-            # Reemplazo NSGA-II (mu+lambda)
+            # --- 7) Reemplazo NSGA-II ---
             pop = toolbox.select(pop + offspring, POP)
             hof.update(pop)
 
-            record = mstats.compile(pop) if len(pop) else {}
+            # --- 8) Estadísticas ---
+            record = mstats.compile(pop) if mstats else {}
             logbook.record(gen=gen, nevals=len(invalid), **record)
             print(logbook.stream)
 
-
-
     else:
+
         stop = StagnationStop(patience=PATIENCE, eps=EPS)
-        pop, _ = eaSimple_stagnation(
+        stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+        stats.register("avg", np.mean)
+        stats.register("min", np.min)
+        stats.register("max", np.max)
+        stats.register("std", np.std)
+
+        pop, logbook = eaSimple_stagnation(
             pop, toolbox,
             cxpb=CXPB, mutpb=MUTPB,
             stop=stop,
-            stats=mstats, halloffame=hof, verbose=True
+            stats=stats, halloffame=hof, verbose=True
         )
+
 
     best = hof[0]
     print("\n=== Mejor individuo (train) ===")
@@ -361,10 +508,7 @@ def run_gp(multiobj: bool):
         return
     preds = []
     for row in Xte:
-        try:
-            s = func(*row)
-        except Exception:
-            s = 0.0
+        s = func(*row)
         preds.append(1 if s >= 0 else 0)
     preds = np.array(preds, dtype=int)
 
@@ -372,30 +516,47 @@ def run_gp(multiobj: bool):
     print("\n=== Test ===")
     print("Accuracy:", acc)
 
+    # -----------------------------
+    #  Gráficas solicitadas
+    # -----------------------------
+    if multiobj:
+        plot_pareto_front(pop, title="Población final y frente de Pareto (multiobjetivo)")
+        plot_multiobj_evolution(logbook, title="Evolución de error y profundidad (multiobjetivo)")
+    else:
+        # Informe: error vs profundidad (población final)
+        plot_error_vs_depth(pop, best=best, title="Error vs profundidad (mono-objetivo)")
+        # (Opcional pero útil) evolución del error
+        plot_mono_fitness_evolution(logbook, title="Evolución del fitness (mono-objetivo)")
+
+    plt.show()
+
 
 # -----------------------------
 #  Menú
 # -----------------------------
 def menu():
     print("\nPráctica 6 - Programación Genética (Breast Cancer)")
-    print(f"Dataset fijo: {INPUTS_XLSX} + {TARGETS_XLSX}")
+    print(f"Dataset: {INPUTS_XLSX} + {TARGETS_XLSX}")
     print("\nElige modo:")
     print("  1) Mono-objetivo")
     print("  2) Multi-objetivo")
-    print("  0) Salir")
+    print("  3) Salir")
 
     while True:
         op = input("\nOpción: ").strip()
-        if op in {"0", "1", "2"}:
+        if op in {"1", "2", "3"}:
             return op
         print("Opción inválida.")
 
 
 if __name__ == "__main__":
-    op = menu()
-    if op == "0":
-        raise SystemExit
-    elif op == "1":
-        run_gp(multiobj=False)
-    elif op == "2":
-        run_gp(multiobj=True)
+    while True:
+        op = menu()
+
+        if op == "1":
+            run_gp(multiobj=False)
+        elif op == "2":
+            run_gp(multiobj=True)
+        elif op == "3":
+            print("Saliendo del programa.")
+            break
