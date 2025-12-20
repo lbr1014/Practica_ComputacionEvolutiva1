@@ -1,0 +1,234 @@
+{
+  "mode": "mono-objetivo",
+  "timestamp": "2025-12-20T02:40:51",
+  "cases": [
+    {
+      "run_label": "CASO_1_equiv_5",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 150,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 5,
+        "MAX_NODES": 70,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 84,
+        "TN": 121,
+        "FP": 2,
+        "FN": 3,
+        "accuracy": 0.9761904761904762,
+        "recall": 0.9655172413793104,
+        "specificity": 0.983739837398374,
+        "precision": 0.9767441860465116,
+        "f1": 0.9710982658959537
+      },
+      "best": {
+        "expr": "sub(add(x5, x1), protected_sqrt(sub(protected_sqrt(protected_sqrt(add(x0, cos(cos(add(neg(add(x5, sub(protected_sqrt(sub(cos(protected_sqrt(protected_log(x5))), x5)), x5))), neg(add(add(protected_log(neg(x2)), x1), add(cos(sub(protected_sqrt(protected_sqrt(add(protected_log(protected_sqrt(add(x5, x1))), x1))), cos(add(protected_log(neg(x8)), x1)))), cos(protected_sqrt(sub(protected_sqrt(protected_log(sin(protected_exp(1.049511969640505)))), x7)))))))))))), 1.4094422069566326)))",
+        "fitness": [
+          0.03271983640081799
+        ],
+        "height": 20,
+        "nodes": 60
+      },
+      "pareto_n": null
+    },
+    {
+      "run_label": "CASO_2_equiv_10",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 250,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 6,
+        "MAX_NODES": 80,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 87,
+        "TN": 121,
+        "FP": 2,
+        "FN": 0,
+        "accuracy": 0.9904761904761905,
+        "recall": 1.0,
+        "specificity": 0.983739837398374,
+        "precision": 0.9775280898876404,
+        "f1": 0.9886363636363636
+      },
+      "best": {
+        "expr": "add(add(protected_div(x7, protected_div(protected_sqrt(x5), add(x1, x5))), x6), protected_log(add(protected_div(protected_div(mul(protected_div(protected_div(x5, protected_log(protected_sqrt(x1))), sub(sin(neg(protected_log(0.6648086556108463))), cos(x4))), mul(protected_div(x0, 0.8833492739199369), x5)), 0.8833492739199369), protected_div(add(mul(protected_sqrt(x0), protected_div(mul(0.8833492739199369, mul(x6, protected_div(x2, 0.8833492739199369))), 0.8833492739199369)), x5), protected_sqrt(mul(add(protected_div(protected_sqrt(add(x1, x5)), sub(x1, cos(x5))), protected_div(protected_div(mul(0.8833492739199369, mul(x6, x5)), protected_sqrt(add(x1, x5))), add(protected_div(x7, protected_div(protected_exp(x1), add(x5, x5))), x6))), x4)))), x2)))",
+        "fitness": [
+          0.026584867075664653
+        ],
+        "height": 13,
+        "nodes": 85
+      },
+      "pareto_n": null
+    },
+    {
+      "run_label": "CASO_3_equiv_20",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 350,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 6,
+        "MAX_NODES": 90,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 86,
+        "TN": 121,
+        "FP": 2,
+        "FN": 1,
+        "accuracy": 0.9857142857142858,
+        "recall": 0.9885057471264368,
+        "specificity": 0.983739837398374,
+        "precision": 0.9772727272727273,
+        "f1": 0.9828571428571429
+      },
+      "best": {
+        "expr": "add(protected_log(add(x5, add(add(protected_sqrt(neg(mul(add(mul(x1, sin(mul(add(protected_sqrt(neg(sin(add(x2, x1)))), add(x0, mul(x7, add(protected_exp(protected_log(add(add(add(protected_log(protected_div(x8, x2)), x5), add(add(x5, x5), add(x0, x8))), add(protected_exp(protected_exp(x4)), protected_log(add(x0, x5)))))), x0)))), mul(x1, x1)))), mul(x5, x7)), add(add(mul(x8, x1), x1), x0)))), add(add(x8, x5), x2)), x1))), protected_log(add(x0, mul(x1, x3))))",
+        "fitness": [
+          0.024539877300613466
+        ],
+        "height": 23,
+        "nodes": 77
+      },
+      "pareto_n": null
+    },
+    {
+      "run_label": "CASO_4_equiv_22",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 450,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 7,
+        "MAX_NODES": 100,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 86,
+        "TN": 121,
+        "FP": 2,
+        "FN": 1,
+        "accuracy": 0.9857142857142858,
+        "recall": 0.9885057471264368,
+        "specificity": 0.983739837398374,
+        "precision": 0.9772727272727273,
+        "f1": 0.9828571428571429
+      },
+      "best": {
+        "expr": "neg(sub(cos(protected_sqrt(x4)), add(x2, add(protected_log(add(add(add(mul(x4, add(x1, x7)), add(x1, mul(x1, add(x8, protected_log(add(protected_sqrt(x7), mul(add(add(mul(add(mul(x4, add(add(mul(add(add(add(x8, mul(x1, add(x2, protected_log(add(mul(x5, add(x5, mul(x6, x5))), mul(mul(x8, add(x5, x5)), x5)))))), x2), add(add(x1, x7), x0)), x7), x6), x2)), add(x4, x0)), mul(add(mul(add(add(x1, x0), x2), add(mul(add(add(x1, x0), x2), add(x5, add(add(mul(add(mul(add(add(x1, x0), x2), add(x2, x1)), add(add(x1, x7), x0)), x5), x6), x2))), x2)), add(add(x1, x7), x0)), x5)), mul(x4, x3)), add(mul(add(mul(cos(protected_exp(-1.064242100737772)), add(add(protected_log(add(add(mul(add(add(add(mul(x6, protected_sqrt(x4)), mul(x1, add(x2, protected_log(add(protected_sqrt(mul(x4, add(add(mul(add(mul(mul(protected_log(add(protected_sqrt(x7), mul(x1, x5))), x4), add(x5, x2)), add(add(x1, x7), x0)), x7), x6), x6))), mul(mul(x8, add(x5, x5)), x5)))))), x2), add(add(x1, x7), x0)), x7), x6), mul(x2, x1))), x0), x2)), add(x0, x1)), x5), x6)), x5))))))), x2), x0)), x5))))",
+        "fitness": [
+          0.026584867075664653
+        ],
+        "height": 43,
+        "nodes": 204
+      },
+      "pareto_n": null
+    },
+    {
+      "run_label": "CASO_5_equiv_13",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 300,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 7,
+        "MAX_NODES": 90,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 84,
+        "TN": 122,
+        "FP": 1,
+        "FN": 3,
+        "accuracy": 0.9809523809523809,
+        "recall": 0.9655172413793104,
+        "specificity": 0.991869918699187,
+        "precision": 0.9882352941176471,
+        "f1": 0.9767441860465116
+      },
+      "best": {
+        "expr": "add(protected_log(x0), add(mul(add(add(x8, x5), x1), x7), mul(add(x3, mul(x5, add(x5, mul(x5, mul(x6, add(x1, x1)))))), add(mul(x2, add(add(x5, x3), add(x6, x6))), x1))))",
+        "fitness": [
+          0.026584867075664653
+        ],
+        "height": 9,
+        "nodes": 36
+      },
+      "pareto_n": null
+    },
+    {
+      "run_label": "CASO_6_equiv_3",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 120,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 4,
+        "MAX_NODES": 60,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 87,
+        "TN": 121,
+        "FP": 2,
+        "FN": 0,
+        "accuracy": 0.9904761904761905,
+        "recall": 1.0,
+        "specificity": 0.983739837398374,
+        "precision": 0.9775280898876404,
+        "f1": 0.9886363636363636
+      },
+      "best": {
+        "expr": "add(x4, protected_log(mul(add(x2, sin(add(x2, neg(neg(x0))))), add(x5, mul(x1, add(cos(x5), protected_log(mul(protected_sqrt(cos(sin(x1))), add(x5, add(add(sin(x8), x7), add(add(x5, x4), cos(x2))))))))))))",
+        "fitness": [
+          0.030674846625766916
+        ],
+        "height": 12,
+        "nodes": 38
+      },
+      "pareto_n": null
+    }
+  ]
+}

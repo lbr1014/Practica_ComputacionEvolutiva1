@@ -1,0 +1,240 @@
+{
+  "mode": "multi-objetivo",
+  "timestamp": "2025-12-20T02:33:15",
+  "cases": [
+    {
+      "run_label": "CASO_1_equiv_5",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 150,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 5,
+        "MAX_NODES": 70,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 82,
+        "TN": 121,
+        "FP": 2,
+        "FN": 5,
+        "accuracy": 0.9666666666666667,
+        "recall": 0.9425287356321839,
+        "specificity": 0.983739837398374,
+        "precision": 0.9761904761904762,
+        "f1": 0.9590643274853801
+      },
+      "best": {
+        "expr": "add(add(x3, x5), protected_log(neg(protected_sqrt(x2))))",
+        "fitness": [
+          0.04703476482617586,
+          4.0
+        ],
+        "height": 4,
+        "nodes": 8
+      },
+      "pareto_n": 150
+    },
+    {
+      "run_label": "CASO_2_equiv_10",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 250,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 6,
+        "MAX_NODES": 80,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 81,
+        "TN": 120,
+        "FP": 3,
+        "FN": 6,
+        "accuracy": 0.9571428571428572,
+        "recall": 0.9310344827586207,
+        "specificity": 0.975609756097561,
+        "precision": 0.9642857142857143,
+        "f1": 0.9473684210526315
+      },
+      "best": {
+        "expr": "add(add(x2, add(x0, x2)), protected_log(x5))",
+        "fitness": [
+          0.04498977505112478,
+          3.0
+        ],
+        "height": 3,
+        "nodes": 8
+      },
+      "pareto_n": 250
+    },
+    {
+      "run_label": "CASO_3_equiv_20",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 350,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 6,
+        "MAX_NODES": 90,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 87,
+        "TN": 120,
+        "FP": 3,
+        "FN": 0,
+        "accuracy": 0.9857142857142858,
+        "recall": 1.0,
+        "specificity": 0.975609756097561,
+        "precision": 0.9666666666666667,
+        "f1": 0.9830508474576272
+      },
+      "best": {
+        "expr": "add(add(add(x5, protected_sqrt(x7)), x0), protected_log(x2))",
+        "fitness": [
+          0.03885480572597133,
+          4.0
+        ],
+        "height": 4,
+        "nodes": 9
+      },
+      "pareto_n": 350
+    },
+    {
+      "run_label": "CASO_4_equiv_22",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 450,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 7,
+        "MAX_NODES": 100,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 77,
+        "TN": 123,
+        "FP": 0,
+        "FN": 10,
+        "accuracy": 0.9523809523809523,
+        "recall": 0.8850574712643678,
+        "specificity": 1.0,
+        "precision": 1.0,
+        "f1": 0.9390243902439024
+      },
+      "best": {
+        "expr": "protected_log(add(x0, x5))",
+        "fitness": [
+          0.053169734151329195,
+          2.0
+        ],
+        "height": 2,
+        "nodes": 4
+      },
+      "pareto_n": 450
+    },
+    {
+      "run_label": "CASO_5_equiv_13",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 300,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 7,
+        "MAX_NODES": 90,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 86,
+        "TN": 119,
+        "FP": 4,
+        "FN": 1,
+        "accuracy": 0.9761904761904762,
+        "recall": 0.9885057471264368,
+        "specificity": 0.967479674796748,
+        "precision": 0.9555555555555556,
+        "f1": 0.9717514124293786
+      },
+      "best": {
+        "expr": "protected_log(add(protected_sqrt(x7), add(x1, x5)))",
+        "fitness": [
+          0.04089979550102252,
+          3.0
+        ],
+        "height": 3,
+        "nodes": 7
+      },
+      "pareto_n": 300
+    },
+    {
+      "run_label": "CASO_6_equiv_3",
+      "config": {
+        "SEED": 0,
+        "TEST_RATIO": 0.3,
+        "POP": 120,
+        "CXPB": 0.8,
+        "MUTPB": 0.2,
+        "TOURN": 3,
+        "INIT_MAX_DEPTH": 2,
+        "MUT_MAX_DEPTH": 2,
+        "MAX_HEIGHT": 4,
+        "MAX_NODES": 60,
+        "PATIENCE": 30,
+        "EPS": 1e-06,
+        "NGEN_MULTI": 100
+      },
+      "test_metrics": {
+        "TP": 77,
+        "TN": 122,
+        "FP": 1,
+        "FN": 10,
+        "accuracy": 0.9476190476190476,
+        "recall": 0.8850574712643678,
+        "specificity": 0.991869918699187,
+        "precision": 0.9871794871794872,
+        "f1": 0.9333333333333333
+      },
+      "best": {
+        "expr": "add(add(x6, x0), protected_log(x2))",
+        "fitness": [
+          0.053169734151329195,
+          2.0
+        ],
+        "height": 2,
+        "nodes": 6
+      },
+      "pareto_n": 120
+    }
+  ]
+}

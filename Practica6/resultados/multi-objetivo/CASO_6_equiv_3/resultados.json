@@ -1,0 +1,627 @@
+{
+  "run_label": "CASO_6_equiv_3",
+  "mode": "multi-objetivo",
+  "timestamp": "2025-12-20T02:33:14",
+  "config": {
+    "SEED": 0,
+    "TEST_RATIO": 0.3,
+    "POP": 120,
+    "CXPB": 0.8,
+    "MUTPB": 0.2,
+    "TOURN": 3,
+    "INIT_MAX_DEPTH": 2,
+    "MUT_MAX_DEPTH": 2,
+    "MAX_HEIGHT": 4,
+    "MAX_NODES": 60,
+    "PATIENCE": 30,
+    "EPS": 1e-06,
+    "NGEN_MULTI": 100
+  },
+  "best_individual": {
+    "expr": "add(add(x6, x0), protected_log(x2))",
+    "fitness": [
+      0.053169734151329195,
+      2.0
+    ],
+    "height": 2,
+    "nodes": 6
+  },
+  "metrics": {
+    "train": {
+      "TP": 138,
+      "TN": 325,
+      "FP": 10,
+      "FN": 16,
+      "accuracy": 0.9468302658486708,
+      "recall": 0.8961038961038961,
+      "specificity": 0.9701492537313433,
+      "precision": 0.9324324324324325,
+      "f1": 0.9139072847682119
+    },
+    "test": {
+      "TP": 77,
+      "TN": 122,
+      "FP": 1,
+      "FN": 10,
+      "accuracy": 0.9476190476190476,
+      "recall": 0.8850574712643678,
+      "specificity": 0.991869918699187,
+      "precision": 0.9871794871794872,
+      "f1": 0.9333333333333333
+    }
+  },
+  "pareto": {
+    "definition": "Frente de Pareto = conjunto de individuos NO dominados al minimizar (error, height).",
+    "objectives": {
+      "obj1": "error = 1-accuracy (min)",
+      "obj2": "height (min)"
+    },
+    "n_pareto": 120,
+    "examples": [
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-1.803070069306914",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-1.803070069306914",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-1.803070069306914",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-1.9930849926193916",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      },
+      {
+        "expr": "-0.532307455416777",
+        "fitness": [
+          0.31492842535787324,
+          0.0
+        ],
+        "height": 0,
+        "nodes": 1
+      }
+    ]
+  },
+  "exploitation": {
+    "vectors": {
+      "benigno_claro": [
+        0.2,
+        0.1,
+        0.1,
+        0.1,
+        0.2,
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ],
+      "maligno_claro": [
+        0.5,
+        0.4,
+        0.6,
+        0.8,
+        0.4,
+        0.1,
+        0.8,
+        1.0,
+        0.1
+      ],
+      "mixto_frontera": [
+        0.35,
+        0.25,
+        0.35,
+        0.45,
+        0.30000000000000004,
+        0.1,
+        0.5,
+        0.55,
+        0.1
+      ],
+      "aleatorio_0_1": [
+        0.6732655185893088,
+        0.3428080423874833,
+        0.13687617154257523,
+        0.1148748719756762,
+        0.8319432152802452,
+        0.9214800195499495,
+        0.6459721981904619,
+        0.7565469048855985,
+        0.5892624923188806
+      ],
+      "idx_benigno": 0,
+      "idx_maligno": 3
+    },
+    "results": {
+      "benigno_claro": {
+        "score": -1.9025850929840455,
+        "pred": 0
+      },
+      "maligno_claro": {
+        "score": 0.789174376235676,
+        "pred": 1
+      },
+      "mixto_frontera": {
+        "score": -0.1998221244958206,
+        "pred": 0
+      },
+      "aleatorio_0_1": {
+        "score": -0.6694409024457635,
+        "pred": 0
+      }
+    }
+  },
+  "logbook": [
+    {
+      "gen": 0,
+      "nevals": 120
+    },
+    {
+      "gen": 1,
+      "nevals": 109
+    },
+    {
+      "gen": 2,
+      "nevals": 102
+    },
+    {
+      "gen": 3,
+      "nevals": 101
+    },
+    {
+      "gen": 4,
+      "nevals": 103
+    },
+    {
+      "gen": 5,
+      "nevals": 90
+    },
+    {
+      "gen": 6,
+      "nevals": 102
+    },
+    {
+      "gen": 7,
+      "nevals": 106
+    },
+    {
+      "gen": 8,
+      "nevals": 102
+    },
+    {
+      "gen": 9,
+      "nevals": 109
+    },
+    {
+      "gen": 10,
+      "nevals": 94
+    },
+    {
+      "gen": 11,
+      "nevals": 99
+    },
+    {
+      "gen": 12,
+      "nevals": 109
+    },
+    {
+      "gen": 13,
+      "nevals": 102
+    },
+    {
+      "gen": 14,
+      "nevals": 100
+    },
+    {
+      "gen": 15,
+      "nevals": 98
+    },
+    {
+      "gen": 16,
+      "nevals": 111
+    },
+    {
+      "gen": 17,
+      "nevals": 108
+    },
+    {
+      "gen": 18,
+      "nevals": 104
+    },
+    {
+      "gen": 19,
+      "nevals": 99
+    },
+    {
+      "gen": 20,
+      "nevals": 101
+    },
+    {
+      "gen": 21,
+      "nevals": 92
+    },
+    {
+      "gen": 22,
+      "nevals": 100
+    },
+    {
+      "gen": 23,
+      "nevals": 105
+    },
+    {
+      "gen": 24,
+      "nevals": 104
+    },
+    {
+      "gen": 25,
+      "nevals": 98
+    },
+    {
+      "gen": 26,
+      "nevals": 106
+    },
+    {
+      "gen": 27,
+      "nevals": 106
+    },
+    {
+      "gen": 28,
+      "nevals": 93
+    },
+    {
+      "gen": 29,
+      "nevals": 103
+    },
+    {
+      "gen": 30,
+      "nevals": 102
+    },
+    {
+      "gen": 31,
+      "nevals": 97
+    },
+    {
+      "gen": 32,
+      "nevals": 94
+    },
+    {
+      "gen": 33,
+      "nevals": 103
+    },
+    {
+      "gen": 34,
+      "nevals": 106
+    },
+    {
+      "gen": 35,
+      "nevals": 95
+    },
+    {
+      "gen": 36,
+      "nevals": 100
+    },
+    {
+      "gen": 37,
+      "nevals": 108
+    },
+    {
+      "gen": 38,
+      "nevals": 104
+    },
+    {
+      "gen": 39,
+      "nevals": 98
+    },
+    {
+      "gen": 40,
+      "nevals": 105
+    },
+    {
+      "gen": 41,
+      "nevals": 98
+    },
+    {
+      "gen": 42,
+      "nevals": 108
+    },
+    {
+      "gen": 43,
+      "nevals": 100
+    },
+    {
+      "gen": 44,
+      "nevals": 88
+    },
+    {
+      "gen": 45,
+      "nevals": 110
+    },
+    {
+      "gen": 46,
+      "nevals": 103
+    },
+    {
+      "gen": 47,
+      "nevals": 106
+    },
+    {
+      "gen": 48,
+      "nevals": 103
+    },
+    {
+      "gen": 49,
+      "nevals": 111
+    },
+    {
+      "gen": 50,
+      "nevals": 105
+    },
+    {
+      "gen": 51,
+      "nevals": 106
+    },
+    {
+      "gen": 52,
+      "nevals": 103
+    },
+    {
+      "gen": 53,
+      "nevals": 93
+    },
+    {
+      "gen": 54,
+      "nevals": 99
+    },
+    {
+      "gen": 55,
+      "nevals": 96
+    },
+    {
+      "gen": 56,
+      "nevals": 98
+    },
+    {
+      "gen": 57,
+      "nevals": 103
+    },
+    {
+      "gen": 58,
+      "nevals": 98
+    },
+    {
+      "gen": 59,
+      "nevals": 106
+    },
+    {
+      "gen": 60,
+      "nevals": 99
+    },
+    {
+      "gen": 61,
+      "nevals": 93
+    },
+    {
+      "gen": 62,
+      "nevals": 102
+    },
+    {
+      "gen": 63,
+      "nevals": 98
+    },
+    {
+      "gen": 64,
+      "nevals": 107
+    },
+    {
+      "gen": 65,
+      "nevals": 100
+    },
+    {
+      "gen": 66,
+      "nevals": 99
+    },
+    {
+      "gen": 67,
+      "nevals": 107
+    },
+    {
+      "gen": 68,
+      "nevals": 106
+    },
+    {
+      "gen": 69,
+      "nevals": 92
+    },
+    {
+      "gen": 70,
+      "nevals": 107
+    },
+    {
+      "gen": 71,
+      "nevals": 92
+    },
+    {
+      "gen": 72,
+      "nevals": 108
+    },
+    {
+      "gen": 73,
+      "nevals": 106
+    },
+    {
+      "gen": 74,
+      "nevals": 102
+    },
+    {
+      "gen": 75,
+      "nevals": 99
+    },
+    {
+      "gen": 76,
+      "nevals": 107
+    },
+    {
+      "gen": 77,
+      "nevals": 103
+    },
+    {
+      "gen": 78,
+      "nevals": 103
+    },
+    {
+      "gen": 79,
+      "nevals": 102
+    },
+    {
+      "gen": 80,
+      "nevals": 105
+    },
+    {
+      "gen": 81,
+      "nevals": 95
+    },
+    {
+      "gen": 82,
+      "nevals": 101
+    },
+    {
+      "gen": 83,
+      "nevals": 106
+    },
+    {
+      "gen": 84,
+      "nevals": 100
+    },
+    {
+      "gen": 85,
+      "nevals": 98
+    },
+    {
+      "gen": 86,
+      "nevals": 97
+    },
+    {
+      "gen": 87,
+      "nevals": 104
+    },
+    {
+      "gen": 88,
+      "nevals": 93
+    },
+    {
+      "gen": 89,
+      "nevals": 98
+    },
+    {
+      "gen": 90,
+      "nevals": 105
+    },
+    {
+      "gen": 91,
+      "nevals": 107
+    },
+    {
+      "gen": 92,
+      "nevals": 105
+    },
+    {
+      "gen": 93,
+      "nevals": 101
+    },
+    {
+      "gen": 94,
+      "nevals": 98
+    },
+    {
+      "gen": 95,
+      "nevals": 106
+    },
+    {
+      "gen": 96,
+      "nevals": 106
+    },
+    {
+      "gen": 97,
+      "nevals": 94
+    },
+    {
+      "gen": 98,
+      "nevals": 104
+    },
+    {
+      "gen": 99,
+      "nevals": 102
+    },
+    {
+      "gen": 100,
+      "nevals": 102
+    }
+  ]
+}
