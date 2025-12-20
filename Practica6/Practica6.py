@@ -579,7 +579,7 @@ def _apply_config(cfg: Dict[str, Any]) -> None:
             globals()[k] = v
 
 
-def _get_default_suite_like_practica1() -> List[Dict[str, Any]]:
+def pruebas_automaticas() -> List[Dict[str, Any]]:
     """
         Batería de 6 casos que se asemejan a los probados en la Práctica 1.
         En la Practica 1 se cambiaba el número de neuronas (5,10,20,22,13,3), aquí cambiamos el tamaño de la población
@@ -928,7 +928,7 @@ def run_test_suite(multiobj: bool) -> List[Dict[str, Any]]:
         "TEST_RATIO": TEST_RATIO,
     }
 
-    suite = _get_default_suite_like_practica1()
+    suite = pruebas_automaticas()
     results: List[Dict[str, Any]] = []
 
     for case_cfg in suite:
