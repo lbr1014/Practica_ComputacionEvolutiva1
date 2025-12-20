@@ -588,7 +588,7 @@ def pruebas_automaticas() -> List[Dict[str, Any]]:
     return [
         {"case": "CASO_1_equiv_5",  "POP": 150, "MAX_HEIGHT": 5, "MAX_NODES": 70, "SEED": 0},
         {"case": "CASO_2_equiv_10", "POP": 250, "MAX_HEIGHT": 6, "MAX_NODES": 80, "SEED": 0},
-        {"case": "CASO_3_equiv_20", "POP": 350, "MAX_HEIGHT": 6, "MAX_NODES": 90, "SEED": 0},
+        {"case": "CASO_3_equiv_15", "POP": 350, "MAX_HEIGHT": 6, "MAX_NODES": 90, "SEED": 0},
         {"case": "CASO_4_equiv_22", "POP": 450, "MAX_HEIGHT": 7, "MAX_NODES": 100, "SEED": 0},
         {"case": "CASO_5_equiv_13", "POP": 300, "MAX_HEIGHT": 7, "MAX_NODES": 90, "SEED": 0},
         {"case": "CASO_6_equiv_3",  "POP": 120, "MAX_HEIGHT": 4, "MAX_NODES": 60, "SEED": 0},
